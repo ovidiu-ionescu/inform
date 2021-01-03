@@ -68,7 +68,7 @@ async fn hello(req: Request<Body>) -> Result<Response<Body>, Infallible> {
 pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     pretty_env_logger::init();
 
-    let cfg = read_config();
+    let cfg = APConfig::read_config();
 
     // For every connection, we must make a `Service` to handle all
     // incoming HTTP requests on said connection.
@@ -90,7 +90,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 }
 
 fn do_work() {
-    let cfg = read_config();
+    let cfg = APConfig::read_config();
     cfg.hosts.par_iter()
         .for_each(|host|
         if let Err(e) = invoke_inform(&host, &cfg.username, &cfg.password, &cfg.command) {
@@ -99,25 +99,27 @@ fn do_work() {
     );
 }
 
-fn read_config() -> APConfig {
-    let mut c = Config::new();
-    c.merge(File::new("settings", FileFormat::Toml).required(true)).unwrap();
-    let username = c.get_str("user").unwrap();
-    let password = c.get_str("password").unwrap();
-    let address  = c.get_str("address").unwrap();
-    let command  = c.get_str("command").unwrap();
+impl APConfig {
+    fn read_config() -> APConfig {
+        let mut c = Config::new();
+        c.merge(File::new("settings", FileFormat::Toml).required(true)).unwrap();
+        let username = c.get_str("user").unwrap();
+        let password = c.get_str("password").unwrap();
+        let address  = c.get_str("address").unwrap();
+        let command  = c.get_str("command").unwrap();
 
-    let host_values = c.get_array("hosts").unwrap();
-    let mut hosts: Vec<String> = Vec::with_capacity(3);
-    for h in host_values {
-        hosts.push(h.into_str().unwrap());
-    }
-    APConfig {
-        username,
-        password,
-        hosts,
-        address,
-        command,
+        let host_values = c.get_array("hosts").unwrap();
+        let mut hosts: Vec<String> = Vec::with_capacity(3);
+        for h in host_values {
+            hosts.push(h.into_str().unwrap());
+        }
+        APConfig {
+            username,
+            password,
+            hosts,
+            address,
+            command,
+        }
     }
 }
 
