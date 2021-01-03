@@ -9,11 +9,11 @@ adopted. The controller will then adopt the device and allow them to be managed.
 The effect is only temporary, it's just a matter of minutes before the 
 controller will miss another heartbeat and mark the devices back to _Adopting_.
 
-The command run is 
+The command to request an access point to be adopted has the form:
 ```
-mca-cli-op set-inform http://10.0.0.3:8080/inform
+mca-cli-op set-inform http://ip-of-controller:8080/inform
 ```
-but it is configurable via settings.toml
+and it is retrieved from settings.toml
 
 A sample settings.toml:
 

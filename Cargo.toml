@@ -1,6 +1,6 @@
 [package]
 name = "inform"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Ovidiu Ionescu <ovidiu@ionescu.net>"]
 edition = "2018"
 
@@ -13,4 +13,4 @@ pretty_env_logger="*"
 ssh2="*"
 rayon="*"
 config="*"
-
+lazy_static="*"

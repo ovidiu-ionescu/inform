@@ -15,6 +15,12 @@ use std::net::{ TcpStream };
 use config::{Config, File, FileFormat};
 use std::net::SocketAddr;
 
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref CONFIG: APConfig = APConfig::read_config();
+}
+
 struct APConfig {
     username: String,
     password: String,
@@ -22,6 +28,7 @@ struct APConfig {
     address:  String,
     command:  String,
 }
+
 
 const RESPONSE: &str = r##"
 <!DOCTYPE html>
@@ -61,14 +68,11 @@ async fn hello(req: Request<Body>) -> Result<Response<Body>, Infallible> {
             Ok(not_found)
         }
     }
-    //Ok(Response::new(Body::from(RESPONSE)))
 }
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     pretty_env_logger::init();
-
-    let cfg = APConfig::read_config();
 
     // For every connection, we must make a `Service` to handle all
     // incoming HTTP requests on said connection.
@@ -79,10 +83,10 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         async { Ok::<_, Infallible>(service_fn(hello)) }
     });
 
-    let socket_addr:SocketAddr = cfg.address.parse().expect("Unble to parse socket address");
+    let socket_addr:SocketAddr = CONFIG.address.parse().expect("Unble to parse socket address");
     let server = Server::bind(&socket_addr).serve(make_svc);
 
-    println!("Listening on http://{}", &cfg.address);
+    println!("Listening on http://{}", &CONFIG.address);
 
     server.await?;
 
@@ -90,10 +94,9 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 }
 
 fn do_work() {
-    let cfg = APConfig::read_config();
-    cfg.hosts.par_iter()
+    CONFIG.hosts.par_iter()
         .for_each(|host|
-        if let Err(e) = invoke_inform(&host, &cfg.username, &cfg.password, &cfg.command) {
+        if let Err(e) = invoke_inform(&host, &CONFIG.username, &CONFIG.password, &CONFIG.command) {
             println!("AP {}: {}", &host, e);
         }
     );
