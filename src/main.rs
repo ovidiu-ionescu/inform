@@ -112,10 +112,8 @@ impl APConfig {
         let command  = c.get_str("command").unwrap();
 
         let host_values = c.get_array("hosts").unwrap();
-        let mut hosts: Vec<String> = Vec::with_capacity(3);
-        for h in host_values {
-            hosts.push(h.into_str().unwrap());
-        }
+        let hosts = host_values.into_iter().map(|h| h.into_str().unwrap()).collect();
+
         APConfig {
             username,
             password,
