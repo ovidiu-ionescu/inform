@@ -23,6 +23,9 @@ password="secret"
 hosts=[ "ap1.domain.com", "ap2.domain.com"" ]
 address="0.0.0.0:7878"
 command="mca-cli-op set-inform http://unify-controller:8080/inform"
+redirect="https://my-unifi-controller.com/manage"
 ```
 
+The program will reply with a temporary redirect to send the browser to the
+interface of the controller after the adoption commands have been executed.
 

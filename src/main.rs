@@ -27,6 +27,7 @@ struct APConfig {
     hosts:    Vec<String>,
     address:  String,
     command:  String,
+    redirect: String,
 }
 
 
@@ -56,9 +57,10 @@ async fn hello(req: Request<Body>) -> Result<Response<Body>, Infallible> {
         (&Method::GET, "/inform") => {
             do_work();
             let response = Response::builder()
-                .status(StatusCode::OK)
+                .status(StatusCode::TEMPORARY_REDIRECT)
                 .header("content-type", "text/html")
                 .header("server", "hyper")
+                .header("Location", &CONFIG.redirect)
                 .body(Body::from(RESPONSE)).unwrap();
             Ok(response)
         },
@@ -110,6 +112,7 @@ impl APConfig {
         let password = c.get_str("password").unwrap();
         let address  = c.get_str("address").unwrap();
         let command  = c.get_str("command").unwrap();
+        let redirect  = c.get_str("redirect").unwrap();
 
         let host_values = c.get_array("hosts").unwrap();
         let hosts = host_values.into_iter().map(|h| h.into_str().unwrap()).collect();
@@ -120,6 +123,7 @@ impl APConfig {
             hosts,
             address,
             command,
+            redirect,
         }
     }
 }
